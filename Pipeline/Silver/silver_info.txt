@@ -1,0 +1,55 @@
+
+Databricks Notebook: Silver Layer Script
+
+Purpose:
+This notebook is part of a Medallion Architecture pipeline, focusing on transforming and loading data from the Bronze layer to the Silver layer in Azure Data Lake Storage Gen2 (ADLS Gen2). It enhances the raw data by performing cleansing, transformations, and data type conversions.
+
+Authentication:
+- OAuth-based authentication is configured using Spark configurations to securely access the ADLS Gen2 account.
+
+Data Sources (from Bronze Layer):
+The following CSV datasets are read from the Bronze layer:
+- Calendar
+- Customers
+- Product Categories
+- Products
+- Returns
+- Sales
+- Territories
+- Product Subcategories
+
+Transformations and Operations:
+1. **Calendar Data**
+   - Extracts month and year from the date field.
+   - Writes data to the Silver layer in Parquet format.
+
+2. **Customer Data**
+   - Concatenates `Prefix`, `FirstName`, and `LastName` into a new `FullName` column.
+   - Writes to the Silver layer.
+
+3. **Product Subcategories**
+   - Directly written to the Silver layer.
+
+4. **Product Data**
+   - Splits `ProductSKU` and `ProductName` for standardization.
+   - Written to the Silver layer.
+
+5. **Returns & Territories**
+   - No transformations applied.
+   - Saved in Silver layer.
+
+6. **Sales Data**
+   - Converts `StockDate` to timestamp.
+   - Replaces 'S' with 'T' in `OrderNumber`.
+   - Adds a derived column `Multiply` (OrderLineItem * OrderQuantity).
+   - Writes to the Silver layer.
+
+7. **Sales Analysis**
+   - Performs simple aggregation: total orders by `OrderDate`.
+
+Data Sink (Silver Layer):
+- All transformed datasets are written as Parquet files to corresponding folders in the Silver container of ADLS Gen2.
+
+Outcome:
+This notebook upgrades raw Bronze-layer data into cleaned, query-ready Silver datasets, setting the stage for further enrichment in the Gold layer.
+

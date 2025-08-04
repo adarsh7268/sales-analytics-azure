@@ -1,0 +1,35 @@
+ Gold Layer (Synapse/Serverless SQL Pool)
+
+Purpose:
+This script defines the Gold layer in a Medallion Architecture by creating external views and tables over Parquet data stored in the Silver layer (in Azure Data Lake Storage Gen2). The Gold layer is optimized for reporting, analytics, and BI consumption.
+
+Security Setup:
+- A database master key is created using encryption.
+- A scoped credential (commented out) is defined to access ADLS using a managed identity.
+- External data sources are created for both the Silver and Gold containers.
+- A file format definition is created for reading Parquet files using Snappy compression.
+
+External Table:
+- `gold.extsales` is created as an external table using data from the existing Gold layer `gold.sales`.
+
+Views Created from Silver Layer:
+Each view points to a corresponding folder in the Silver layer using `OPENROWSET` and reads Parquet files.
+
+Views:
+- `gold.calender`: Reads from Silver's AdventureWorks_Calendar
+- `gold.customer`: Reads from AdventureWorks_Customers
+- `gold.product`: Reads from AdventureWorks_Products
+- `gold.returns`: Reads from AdventureWorks_Returns
+- `gold.sales`: Reads from AdventureWorks_Sales
+- `gold.subcategories`: Reads from AdventureWorks_Subcategories
+- `gold.territories`: Reads from AdventureWorks_Territories
+
+Advantages:
+- Provides a semantic layer for reporting tools like Power BI or Azure Synapse Studio.
+- Decouples physical storage from logical queries using views.
+- Enables performant and secure querying directly over lake data using serverless SQL.
+
+Usage:
+- Use `SELECT` queries directly on the `gold` schema views and external tables for analysis.
+- Supports scalable and cost-efficient analytics without needing to move or copy data.
+

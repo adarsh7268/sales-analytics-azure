@@ -1,0 +1,36 @@
+
+Pipeline Name: df_git_to_bronze
+
+This pipeline is designed to ingest multiple raw CSV files from a GitHub-like HTTP source and land them into the Bronze layer of a Data Lake (typically Azure Data Lake Storage - ADLS Gen2). The workflow is dynamic and scalable, driven by metadata configuration stored in a JSON file.
+
+Workflow Breakdown:
+
+1. Lookup Activity: Lookup for Relative url path
+- Purpose: Reads a configuration file (JSON format) from a specified dataset (ds_config_file) in ADLS.
+- Output: A list of objects, each containing:
+  - p_rel_url: Relative HTTP URL for the source file
+  - p_sink_folder: Target folder path in the Bronze layer
+  - p_sink_file: File name for the copied output
+- Use: Provides input items for the subsequent ForEach activity.
+
+2. ForEach Activity: ForEach
+- Purpose: Iterates over each item returned by the Lookup.
+- Execution Mode: Sequential (isSequential: true), meaning files are processed one after another.
+
+3. Inner Activity: copy raw data
+- Type: Copy Activity
+- Source:
+  - Reads delimited (CSV) data from an HTTP endpoint.
+  - Uses the dynamic relative URL (@item().p_rel_url) for each file.
+- Sink:
+  - Writes the file as delimited text (CSV format with .txt extension) into ADLS Gen2.
+  - Destination path and filename are dynamically set using:
+    - @item().p_sink_folder
+    - @item().p_sink_file
+- Translation: Uses a TabularTranslator for schema mapping and basic type conversion.
+- No staging: enableStaging is set to false, which improves performance for small-to-medium file sizes.
+
+Datasets Used:
+- ds_config_file: JSON configuration file stored in ADLS.
+- ds_dynamic_source_csv: HTTP-based source dataset with dynamic parameter for relative URL.
+- ds_gen_adls_bronze: Sink dataset representing the Bronze folder structure in ADLS, with parameters for folder and file name.

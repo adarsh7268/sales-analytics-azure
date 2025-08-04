@@ -1,1 +1,45 @@
-Sales analytics Dashboard
+Retail Analytics Pipeline
+
+Overview:
+This data engineering project demonstrates a full-scale implementation of the Medallion Architecture using Azure Data Lake Storage Gen2, Azure Data Factory (ADF), and Databricks. The objective is to design a modular and scalable data pipeline to ingest, transform, and serve data for analytical and business intelligence (BI) purposes.
+
+Architecture Layers:
+
+1. Bronze Layer (Raw Data Ingestion):
+   - Tool: Azure Data Factory (ADF)
+   - Pipeline: `df_git_to_bronze`
+   - Function: Ingests multiple CSV files from HTTP sources (e.g., GitHub) into ADLS Bronze container.
+   - Configuration-driven using a JSON config file and ForEach loop.
+   - Writes raw data to `abfss://bronze@adstorage1234.dfs.core.windows.net/`.
+
+2. Silver Layer (Data Transformation and Cleaning):
+   - Tool: Azure Databricks
+   - Script: Silver Layer Notebook
+   - Function: Reads raw CSV files from the Bronze layer and performs cleansing and transformations using PySpark.
+   - Examples:
+     - Extracting `Year` and `Month` from dates
+     - Creating full customer names
+     - Normalizing product names and SKU
+     - Parsing dates and standardizing formats
+   - Writes clean, structured Parquet files to `abfss://silver@adstorage1234.dfs.core.windows.net/`.
+
+3. Gold Layer (Business-Ready Views and Tables):
+   - Tool: Azure Synapse Analytics (Serverless SQL Pool)
+   - Script: Gold Layer SQL Script
+   - Function: Creates external views and tables over the Silver layer using `OPENROWSET` and external tables.
+   - Views created: `gold.sales`, `gold.customer`, `gold.product`, `gold.returns`, `gold.calender`, `gold.subcategories`, `gold.territories`
+   - Enables querying and BI analysis without data movement.
+
+Benefits:
+- Modular, scalable, and cloud-native architecture
+- Configuration-driven ingestion for easy extensibility
+- Clean separation between raw, refined, and curated data
+- Supports downstream analytics tools like Power BI or Synapse Studio
+
+Technologies Used:
+- Azure Data Lake Storage Gen2
+- Azure Data Factory
+- Azure Databricks (PySpark)
+- Azure Synapse Analytics (Serverless SQL Pools)
+- OAuth-based ADLS Access
+- Parquet File Format
